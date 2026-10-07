@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<!--
+잠자리 프로젝트용 ZAP 정의. Matter 다음 규격 초안(Ambient Context Sensing, 0x0431, revision 1)의
+번호·이름·타입만 옮겼다. NCS v3.4.1 SDK 에는 ZAP 정의·서버 코드가 없어서 프로젝트 안에 둔다.
+HoldTime/HoldTimeLimits(선택)는 넣지 않았다 — 구조체 속성은 서버 코드가 필요하다.
+-->
+<configurator>
+  <domain name="Measurement &amp; Sensing"/>
+  <enum name="HumanActivityTypeEnum" type="enum8">
+    <cluster code="0x0431"/>
+    <item name="Other" value="0x00"/>
+    <item name="Fall" value="0x01"/>
+    <item name="Sleep" value="0x02"/>
+    <item name="Walk" value="0x03"/>
+    <item name="Sit" value="0x04"/>
+    <item name="Stand" value="0x05"/>
+    <item name="Run" value="0x06"/>
+  </enum>
+  <cluster apiMaturity="provisional">
+    <domain>Measurement &amp; Sensing</domain>
+    <name>Ambient Context Sensing</name>
+    <code>0x0431</code>
+    <define>AMBIENT_CONTEXT_SENSING_CLUSTER</define>
+    <description>Human activity sensing (draft cluster, project-local definition).</description>
+    <client init="false" tick="false">true</client>
+    <server init="false" tick="false">true</server>
+    <globalAttribute code="0xFFFD" side="either" value="1"/>
+    <features>
+      <feature bit="0" code="HA" name="HumanActivity" summary="Supports sensing human activity">
+        <optionalConform/>
+      </feature>
+    </features>
+    <attribute code="0x0000" side="server" name="HumanActivityDetected" define="HUMAN_ACTIVITY_DETECTED" type="boolean" reportable="true"/>
+    <attribute code="0x0001" side="server" name="HumanActivityType" define="HUMAN_ACTIVITY_TYPE" type="HumanActivityTypeEnum"/>
+  </cluster>
+</configurator>

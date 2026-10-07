@@ -1,0 +1,8 @@
+build
+.omc/
+__pycache__/
+*.pyc
+.DS_Store
+.omc/
+test/run_cpp_parser
+test/run_tracker

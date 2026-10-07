@@ -1,0 +1,21 @@
+jamjari-firmware (잠자리)
+Copyright 2026 wineny
+
+This repository is licensed under the Apache License 2.0 (see LICENSE),
+except for the files described below, which keep their own license.
+
+Nordic Semiconductor (LicenseRef-Nordic-5-Clause)
+-------------------------------------------------
+Some files are derived from the nRF Connect SDK sample
+`nrf/samples/matter/contact_sensor` (v3.4.1) and carry the header
+`SPDX-License-Identifier: LicenseRef-Nordic-5-Clause`. Those headers are kept
+as they are, and those files stay under the Nordic 5-Clause license, which
+only allows use with Nordic Semiconductor chips. The full text is in the
+nRF Connect SDK (nrf/LICENSE). Find the files with:
+
+    grep -rl "LicenseRef-Nordic-5-Clause" .
+
+Files generated from the Matter data model (e.g. under src/default_zap) follow
+the connectedhomeip project license (Apache License 2.0).
+
+src/root_certs.inc holds public root CA certificates only (no private keys).

@@ -1,0 +1,88 @@
+/*
+ * Copyright (c) 2025 Nordic Semiconductor ASA
+ *
+ * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+ */
+
+#include <samples/matter/nrf5340_cpuapp_partitions.dtsi>
+#include <zephyr/dt-bindings/ipc_service/static_vrings.h>
+
+/* Set IPC thread priority to the highest value to not collide with other threads. */
+&ipc0 {
+	zephyr,priority = <0 PRIO_COOP>;
+};
+
+/ {
+	chosen {
+		nordic,pm-ext-flash = &mx25r64;
+	};
+};
+
+&mx25r64 {
+	status = "okay";
+};
+
+/* Disable unused peripherals to reduce power consumption */
+&adc {
+	status = "disabled";
+};
+
+&i2c1 {
+	status = "disabled";
+};
+
+&pwm0 {
+	status = "disabled";
+};
+
+&spi2 {
+	status = "disabled";
+};
+
+&usbd {
+	status = "disabled";
+};
+
+/*
+ * 잠자리: HLK-LD2450 레이더용 UART.
+ * uart1 의 기본 핀(P1.00/P1.01)은 네트워크 코어 UART 로 넘겨지고(gpio_fwd)
+ * DK 디버거 VCOM 에도 물려 있어서 쓰지 않는다. 비어 있는 Arduino D2/D3 로 옮긴다.
+ *   TX  P1.04 (Arduino D2) -> LD2450 RX
+ *   RX  P1.05 (Arduino D3) <- LD2450 TX
+ * UARTE1 은 TWIM1(i2c1) 과 같은 주변장치를 공유한다. i2c1 은 위에서 disabled.
+ * current-speed 는 드라이버가 허용하는 250000 으로 두고, 실제 256000 설정은
+ * src/ld2450.cpp 에서 BAUDRATE 레지스터에 직접 쓴다.
+ */
+/ {
+	aliases {
+		ld2450-uart = &uart1;
+	};
+};
+
+&pinctrl {
+	uart1_ld2450_default: uart1_ld2450_default {
+		group1 {
+			psels = <NRF_PSEL(UART_TX, 1, 4)>;
+		};
+		group2 {
+			psels = <NRF_PSEL(UART_RX, 1, 5)>;
+			bias-pull-up;
+		};
+	};
+
+	uart1_ld2450_sleep: uart1_ld2450_sleep {
+		group1 {
+			psels = <NRF_PSEL(UART_TX, 1, 4)>,
+				<NRF_PSEL(UART_RX, 1, 5)>;
+			low-power-enable;
+		};
+	};
+};
+
+&uart1 {
+	status = "okay";
+	current-speed = <250000>;
+	pinctrl-0 = <&uart1_ld2450_default>;
+	pinctrl-1 = <&uart1_ld2450_sleep>;
+	pinctrl-names = "default", "sleep";
+};

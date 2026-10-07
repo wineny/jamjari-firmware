@@ -1,0 +1,71 @@
+/*
+ * Copyright (c) 2026 Nordic Semiconductor ASA
+ *
+ * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+ */
+
+#include <samples/matter/nrf54lm20_cpuapp_partitions.dtsi>
+
+/ {
+	aliases {
+		/* Use watchdog wdt31 as the application watchdog */
+		watchdog0 = &wdt31;
+	};
+
+	chosen {
+		nordic,pm-ext-flash = &mx25r64;
+	};
+};
+
+&mx25r64 {
+	status = "okay";
+};
+
+&wdt31 {
+	status = "okay";
+};
+
+/*
+ * 잠자리: HLK-LD2450 레이더용 UART (nRF54LM20 DK).
+ * uart20 은 콘솔(디버거 VCOM)이라 쓰지 않고, 비어 있는 uart21 을 쓴다.
+ * uart21 은 16MHz 주변장치 도메인이라 src/ld2450.cpp 의 256000 BAUDRATE 레지스터 값
+ * (16MHz 기준 공식)이 그대로 맞다. 핀은 확장 헤더의 P1 포트에서 고른다
+ * (주변장치 도메인 UARTE 는 P1 핀을 쓴다).
+ *   TX  P1.04 -> LD2450 RX
+ *   RX  P1.05 <- LD2450 TX
+ * 🔴 DK 의 VDD(GPIO 전압) 기본값이 1.8V 일 수 있다. 레이더 TX 는 3.3V 라서
+ *    Board Configurator 로 VDD 를 3.3V 로 올린 뒤에 선을 꽂는다.
+ */
+/ {
+	aliases {
+		ld2450-uart = &uart21;
+	};
+};
+
+&pinctrl {
+	uart21_ld2450_default: uart21_ld2450_default {
+		group1 {
+			psels = <NRF_PSEL(UART_TX, 1, 4)>;
+		};
+		group2 {
+			psels = <NRF_PSEL(UART_RX, 1, 5)>;
+			bias-pull-up;
+		};
+	};
+
+	uart21_ld2450_sleep: uart21_ld2450_sleep {
+		group1 {
+			psels = <NRF_PSEL(UART_TX, 1, 4)>,
+				<NRF_PSEL(UART_RX, 1, 5)>;
+			low-power-enable;
+		};
+	};
+};
+
+&uart21 {
+	status = "okay";
+	current-speed = <250000>;
+	pinctrl-0 = <&uart21_ld2450_default>;
+	pinctrl-1 = <&uart21_ld2450_sleep>;
+	pinctrl-names = "default", "sleep";
+};

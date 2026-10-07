@@ -1,0 +1,16 @@
+/*
+ * 시연용 재생 빌드 (./build.sh --replay). 레이더 UART 를 uart21(레이더 선)에서
+ * uart30(디버거 USB 의 VCOM0)으로 바꾼다. 맥의 dummy/보드재생.py 가 여기로 더미 프레임을 보낸다.
+ * 콘솔·로그(F 줄·사건 줄)는 그대로 uart20(VCOM1)이다.
+ */
+/ {
+	aliases {
+		/delete-property/ ld2450-uart;
+		ld2450-uart = &uart30;
+	};
+};
+
+&uart30 {
+	status = "okay";
+	current-speed = <115200>;
+};
